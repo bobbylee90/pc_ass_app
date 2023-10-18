@@ -1,23 +1,26 @@
-version: '3'
+version: '3.3'
 services:
   pcapp:
     depends_on:
       - mysql
     container_name: pcapp
     build: 
-      context: ./build
+      context: .
       dockerfile: Dockerfile.pcapp
-    ports: 8181:8181
+    ports: 
+      - "8181:8181"
     restart: always
-    tty: true
   mysql:
     container_name: mysql
     build: 
-      context: ./build
+      context: .
       dockerfile: Dockerfile.mysql
     ports:
       - "3306:3306"
     env_file:
-      - ./build/mysql.env
+      - ./mysql.env
+    volumes:
+      - myappvol:/var/lib/mysql
     restart: always
-    tty: true
+volumes:
+  myappvol:

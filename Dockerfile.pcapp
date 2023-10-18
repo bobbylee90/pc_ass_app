@@ -1,0 +1,15 @@
+FROM python:3.10.12-slim as build
+
+WORKDIR /tmp 
+COPY ./requirements.txt /tmp/requirements.txt
+
+RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+
+FROM python:3.10.12-slim
+WORKDIR /myapp
+COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
+COPY . .
+
+CMD ["python", "main.py"]
