@@ -12,9 +12,7 @@ services:
     restart: always
   mysql:
     container_name: mysql
-    build: 
-      context: .
-      dockerfile: Dockerfile.mysql
+    image: mysql:latest
     ports:
       - "3306:3306"
     env_file:
