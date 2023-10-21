@@ -2,8 +2,14 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from src import db_route
+from src.helpers.dbconnector import MysqlConnector
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    with MysqlConnector() as conn:
+        conn.create_tables()
 
 @app.get("/")
 async def is_alive():

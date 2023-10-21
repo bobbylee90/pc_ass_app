@@ -1,4 +1,6 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+from src.helpers.db_models import DbBase
 
 class MysqlConnector():
 
@@ -10,6 +12,7 @@ class MysqlConnector():
         self.db_name = "default"
         self.template_engine = "mysql+pymysql://{db_username}:{db_password}@{db_host}:{db_port}/{db_name}"
         self.engine = self.get_engine()
+        self.sess = self.create_session()
 
     def get_engine(self):
         eg_conf = self.template_engine.format(db_username=self.username,
@@ -18,10 +21,25 @@ class MysqlConnector():
             db_port=self.db_port,
             db_name =self.db_name)
         return create_engine(eg_conf, echo=True)
+    
+    def create_session(self):
+        return Session(bind=self.engine)
+    
+    def create_tables(self)-> bool:
+        status: bool  = False
+        try:
+            DbBase.metadata.create_all(bind=self.engine)
+            status = True
+        except Exception as e:
+            status = False
+            print(f"create tables fails....")
+        return status
+
 
 
     def __enter__(self):
         return self
     
     def __exit__(self, exception_type, exception_value, exception_traceback):
-        pass
+        self.sess.close_all()
+        self.engine.dispose()

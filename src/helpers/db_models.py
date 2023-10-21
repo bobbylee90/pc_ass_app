@@ -1,6 +1,10 @@
+import sys
+if __name__ == "__main__":
+    print(sys.path.insert(0, "../.."))
 from copy import deepcopy
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
-from sqlalchemy import ForeignKey, Text, create_engine, String, select
+from datetime import datetime
+from sqlalchemy.orm import DeclarativeBase, relationship, Session, Mapped
+from sqlalchemy import ForeignKey, Text, create_engine, String, Integer, Column, DateTime
 from src.helpers.api_models import Account, Info
 
 class DbBase(DeclarativeBase):
@@ -8,10 +12,12 @@ class DbBase(DeclarativeBase):
 
 class Accounts(DbBase):
     __tablename__ = "accounts"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(255),nullable=False)
-    password: Mapped[str] = mapped_column(String(255),nullable=False)
-    info: Mapped["Infos"] = relationship(back_populates="account")
+    id: int = Column(Integer(), primary_key=True)
+    username: str = Column(String(255),nullable=False, unique=True)
+    password: str = Column(String(255),nullable=False)
+    info: Mapped["Infos"] = relationship(back_populates="account", cascade="all, delete, delete-orphan")
+    date_created: DateTime = Column(DateTime(), default=datetime.utcnow())
+    last_update: DateTime = Column(DateTime(), default=datetime.utcnow())
 
     def __init__(self, username: str, password: str, info: "Infos"):
         self.username = username
@@ -31,17 +37,23 @@ class Accounts(DbBase):
             phone=self.info.phone,
             biography=self.info.biography
         ))
-
     
+    def update_from_account(self, acc: Account):
+        self.password = acc.password if acc.password else self.password
+        self.info.email = acc.info.email if acc.info.email else self.info.email
+        self.info.fullname = acc.info.fullname if acc.info.fullname else self.info.fullname
+        self.info.phone = acc.info.phone if acc.info.phone else self.info.phone
+        self.info.biography = acc.info.biography if acc.info.biography else self.info.biography
+        self.last_update = datetime.utcnow()
 
 class Infos(DbBase):
     __tablename__ = "infos"
-    id: Mapped[int] = mapped_column(primary_key=True)
-    account_id: Mapped[int] = mapped_column(ForeignKey("accounts.id"), nullable=False)
-    fullname: Mapped[str] = mapped_column(String(255),nullable=True)
-    email: Mapped[str] = mapped_column(String(255),nullable=False)
-    phone: Mapped[str] = mapped_column(String(255),nullable=True)
-    biography: Mapped[str] = mapped_column(Text, nullable=True)
+    id: int = Column(Integer(), primary_key=True)
+    account_id: int = Column(ForeignKey("accounts.id"), nullable=False)
+    fullname: str = Column(String(255),nullable=True)
+    email: str = Column(String(255),nullable=False)
+    phone: str = Column(String(255),nullable=True)
+    biography: str = Column(Text(), nullable=True)
     account: Mapped["Accounts"] = relationship(back_populates="info")
 
     def __init__(self, fullname: str, email: str, phone: str, biography: str):
