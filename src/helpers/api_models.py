@@ -11,3 +11,4 @@ class Account(BaseModel):
     password: str
     info: Info
 
+
