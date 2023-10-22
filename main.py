@@ -1,3 +1,4 @@
+import time
 import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
@@ -8,6 +9,7 @@ app = FastAPI()
 
 @app.on_event("startup")
 async def startup_event():
+    time.sleep(3)
     with MysqlConnector() as conn:
         conn.create_tables()
 

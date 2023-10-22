@@ -1,10 +1,13 @@
-from fastapi import APIRouter
+import logging
+import traceback
 import sqlalchemy as sa
+from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from src.helpers.db_models import Accounts, Infos
 from src.helpers.api_models import Account, Info
 from src.helpers.dbconnector import MysqlConnector
 
+logger = logging.getLogger("db_route")
 router = APIRouter()
 
 @router.get("/dbcheck/")
@@ -32,10 +35,15 @@ async def is_db_exits(dbname: str):
 @router.post("/username/info", response_model=Account)
 async def get_acc_by_username(username: str):
     temp: Accounts =  None
+    ret = None
     with MysqlConnector() as conn:
         temp = conn.sess.query(Accounts).where(Accounts.username == username).first()
-        print(temp)
-    return temp.return_api_models() if temp else Account(username="",password="", info=Info(fullname="",email="",phone="",biography=""))
+        if temp:
+            ret = temp.return_api_models()
+    logger.error(f"{traceback.format_exc()}")
+    if not ret:
+        raise HTTPException(status_code=500, detail=f"[{username}] is not found in database.")
+    return ret
 
 @router.post("/addnew/")
 async def create_new_account(acc: Account):
@@ -50,7 +58,7 @@ async def create_new_account(acc: Account):
         conn.sess.add(account)
         conn.sess.commit()
         temp = []
-        result = conn.sess.query(Accounts, Infos).filter(Accounts.id == Infos.account_id).all()
+        result = conn.sess.query(Accounts, Infos).filter(Accounts.account_id == Infos.account_id).all()
         # result = sess.query(Accounts, Infos).filter(Accounts.id == Infos.account_id).filter(Infos.phone.like("+886%")).all()
         for res in result:
             temp.append({**res[0].customdict(), **res[1].customdict()})
@@ -67,7 +75,7 @@ async def update_by_username(acc: Account):
             target_record.update_from_account(acc=acc)
             conn.sess.commit()
             ret["updated"] = "true"
-        result = conn.sess.query(Accounts, Infos).filter(Accounts.id == Infos.account_id).all()
+        result = conn.sess.query(Accounts, Infos).filter(Accounts.account_id == Infos.account_id).all()
         for res in result:
             temp.append({**res[0].customdict(), **res[1].customdict()})
     ret["records"] = temp
@@ -83,7 +91,7 @@ async def create_new_account(username: str):
             conn.sess.delete(target_record)
             conn.sess.commit()
             ret["deleted"] = "true"
-        result = conn.sess.query(Accounts, Infos).filter(Accounts.id == Infos.account_id).all()
+        result = conn.sess.query(Accounts, Infos).filter(Accounts.account_id == Infos.account_id).all()
         for res in result:
             temp.append({**res[0].customdict(), **res[1].customdict()})
     ret["records"] = temp
