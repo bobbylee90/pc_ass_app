@@ -23,7 +23,7 @@ async def db_checker():
         i += 1
     return {"available-db": ret}
 
-@router.get("/bydbname/{dbname}")
+@router.get("/dbname/{dbname}")
 async def is_db_exits(dbname: str):
     db_name: list = []
     with MysqlConnector() as conn:
@@ -45,7 +45,7 @@ async def get_acc_by_username(username: str):
         raise HTTPException(status_code=500, detail=f"[{username}] is not found in database.")
     return ret
 
-@router.post("/addnew/")
+@router.post("/account/")
 async def create_new_account(acc: Account):
     ret:dict = {"dbrecords": ""} 
     account: Accounts = Accounts(username=acc.username, password=acc.password, info=Infos(
@@ -65,7 +65,7 @@ async def create_new_account(acc: Account):
         ret["dbrecords"] = temp
     return ret
 
-@router.put("/update/info")
+@router.put("/info")
 async def update_by_username(acc: Account):
     ret: dict = {"updated" : "false"}
     temp: list = []
@@ -81,7 +81,7 @@ async def update_by_username(acc: Account):
     ret["records"] = temp
     return ret
 
-@router.delete("/delete/user")
+@router.delete("/user")
 async def create_new_account(username: str):
     ret: dict = {"deleted" : "false"}
     temp: list = []

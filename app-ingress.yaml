@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: myapp-ingress
+  namespace: development
+spec:
+  rules:
+    - host: myapp.com
+      http:
+        paths:
+          - path: /myapp
+            pathType: Prefix
+            backend:
+              service: 
+                name: myappclusterip
+                port: 
+                  number: 8181

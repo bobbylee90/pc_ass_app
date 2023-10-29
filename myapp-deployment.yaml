@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: development
+  labels:
+    name: development
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp-deployment
+  namespace: development
+  labels:
+    app: myapp-master
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+        - name: myapp-pods
+          image: bobbylee90/myowntesting:latest
+          ports:
+          - containerPort: 8181
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: myappclusterip
+  namespace: development
+spec:
+  ports:
+    - name: apiport
+      protocol: TCP
+      port: 8181
+      targetPort: 8181
+  selector:
+    app: myapp
+---
+# LoadBalancer only available for Cloud service provider, does not support in minikube
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: loadbalancer-service
+# spec:
+#   # when create a Loadbalancer, a NodePort and ClusterIp is automatically created.
+#   type: LoadBalancer # Loadbalancer > NodePort > clusterIP > Pods > application
+#   externalIPs: 
+#     - 192.168.0.123
+#   ports:
+#     - protocol: TCP
+#       port: 8181 #outside world
+#       targetPort: 8181 #from pods
+#       nodePort: 30081 # for node ports
+#   selector:
+#     app: myapp
+
