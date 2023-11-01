@@ -29,16 +29,14 @@ class LinkedList():
         if self.head.val == val:
             self.head = self.head.next
             return
-        temp = self.head
-        if not temp:
-            return
-        while temp:
-            if temp.next and temp.next.val != val:
-                temp = temp.next
-            else:
-                break
-        if temp.val == val and temp.next:
-            temp.next = temp.next.next
+        prev, temp = None, self.head
+
+        while temp and temp.val != val:
+            prev = temp
+            temp = temp.next
+        if temp:
+            prev.next = temp.next
+        
 
     def swap(self, valx, valy):
         if valx == valy:
@@ -186,20 +184,24 @@ class DoublyLinkedList():
 if __name__ == "__main__":
     lllist = [1,2,3,4,5,6,7,8]
     dll = DoublyLinkedList()
-    for item in lllist:
-        dll.append(item)
-        # dll.prepend(newval=item)
-    dll.remove(val=5)
-    dll.printelem()
-    # ll = LinkedList()
     # for item in lllist:
-    #     ll.append(item)
-    # ll.printelem()
-    # ll.update(index=3, newval=100)
-    # ll.printelem()
-    # ll.prepend(val=1000)
-    # ll.printelem()
-    # ll.remove(val=1000)
-    # ll.printelem()
-    # ll.insert(val=600, index=6)
-    # ll.printelem()
+    #     dll.append(item)
+    #     # dll.prepend(newval=item)
+    # dll.remove(val=5)
+    # dll.printelem()
+    ll = LinkedList()
+    for item in lllist:
+        ll.append(item)
+    ll.printelem()
+    ll.update(index=3, newval=100)
+    ll.printelem()
+    ll.prepend(val=1000)
+    ll.printelem()
+    ll.remove(val=1000)
+    ll.printelem()
+    ll.insert(val=600, index=6)
+    ll.printelem()
+    ll.remove(val=8)
+    ll.printelem()
+    ll.remove(val=100)
+    ll.printelem()
