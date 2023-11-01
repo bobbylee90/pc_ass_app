@@ -104,17 +104,102 @@ class LinkedList():
             temp =temp.next
         print()
 
+class DoublyLinkedList():
+    def __init__(self) -> None:
+        self.head: self.Node = None
+        self.size = 0
+
+    class Node():
+        def __init__(self, val, previous=None, next=None) -> None:
+            self.val = val
+            self.previous = previous
+            self.next = next
+        
+        def get_next(self):
+            return self.next
+        
+        def set_next(self, newnode):
+            self.next = newnode
+
+        def get_prev(self):
+            return self.previous
+
+        def set_prev(self, newnode):
+            self.previous = newnode
+
+        def get_val(self):
+            return self.val
+        
+        def set_val(self, newval):
+            self.val = newval
+
+    def getsize(self):
+        return self.size
+    
+    def append(self, newval):
+        newnode = self.Node(val=newval)
+        if not self.head:
+            self.head = newnode
+            self.size += 1
+            return
+        temp = self.head
+        while temp.next:
+            temp = temp.next
+        newnode.set_prev(newnode=temp)
+        temp.set_next(newnode=newnode)
+        self.size += 1
+        
+    
+    def prepend(self, newval):
+        newnode = self.Node(val=newval, next=self.head)
+        if self.head:
+            self.head.set_prev(newnode=newnode)
+        self.head = newnode
+        self.size += 1
+
+    def remove(self, val):
+        temp = self.head
+        while temp:
+            if temp.get_val() == val:
+                nex = temp.get_next()
+                pre = temp.get_prev()
+                if nex:
+                    nex.set_prev(newnode = pre)
+                if pre:
+                    pre.set_next(newnode = nex)
+                else:
+                    self.head = temp
+                self.size -= 1
+                return
+            else:
+                temp = temp.get_next()
+
+    def printelem(self):
+        temp = self.head
+        while temp:
+            if temp.get_prev():
+                print(f"prev:[{temp.get_prev().val}]", end="|")
+            print(f"curr:[{temp.val}]", end=" ")
+            temp =temp.get_next()
+        print()
+        
 if __name__ == "__main__":
     lllist = [1,2,3,4,5,6,7,8]
-    ll = LinkedList()
+    dll = DoublyLinkedList()
     for item in lllist:
-        ll.append(item)
-    ll.printelem()
-    ll.update(index=3, newval=100)
-    ll.printelem()
-    ll.prepend(val=1000)
-    ll.printelem()
-    ll.remove(val=1000)
-    ll.printelem()
-    ll.insert(val=600, index=6)
-    ll.printelem()
+        dll.append(item)
+        # dll.prepend(newval=item)
+    dll.remove(val=5)
+    dll.printelem()
+    # ll = LinkedList()
+    # for item in lllist:
+    #     ll.append(item)
+    # ll.printelem()
+    # ll.update(index=3, newval=100)
+    # ll.printelem()
+    # ll.prepend(val=1000)
+    # ll.printelem()
+    # ll.remove(val=1000)
+    # ll.printelem()
+    # ll.insert(val=600, index=6)
+    # ll.printelem()
